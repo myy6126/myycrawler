@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:task="http://www.springframework.org/schema/task"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd
+       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task/spring-task.xsd ">
+
+    <context:property-placeholder location="classpath*:*.properties" file-encoding="UTF-8"/>
+    <context:component-scan base-package="com.nestia.crawler">
+        <context:exclude-filter type="regex" expression="com\.nestia\.crawler\.web\..*"/>
+    </context:component-scan>
+
+    <!-- task, executor -->
+    <task:executor id="executor" pool-size="10" keep-alive="60" queue-capacity="1000"/>
+    <task:scheduler id="scheduler" pool-size="5"/>
+    <task:annotation-driven executor="executor" scheduler="scheduler"/>
+
+    <bean id="configContainer" class="com.nestia.common.config.ConfigContainer">
+        <constructor-arg value="${config.api.server}"/>
+    </bean>
+
+    <!-- 注解驱动 -->
+    <tx:annotation-driven/>
+
+    <!-- jdbc -->
+    <bean id="crawlDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="jdbcUrl" value="${crawl.jdbc.url}"/>
+        <property name="driverClass" value="${crawl.jdbc.driverClassName}"/>
+        <property name="user" value="${crawl.jdbc.username}"/>
+        <property name="password" value="${crawl.jdbc.password}"/>
+        <property name="initialPoolSize" value="${crawl.jdbc.initialPoolSize}"/>
+        <property name="minPoolSize" value="${crawl.jdbc.minPoolSize}"/>
+        <property name="maxPoolSize" value="${crawl.jdbc.maxPoolSize}"/>
+        <property name="maxStatements" value="${crawl.jdbc.maxStatements}"/>
+        <property name="autoCommitOnClose" value="${crawl.jdbc.autoCommitOnClose}"/>
+        <property name="idleConnectionTestPeriod" value="${crawl.jdbc.idleConnectionTestPeriod}"/>
+        <property name="maxIdleTime" value="${crawl.jdbc.maxIdleTime}"/>
+        <property name="testConnectionOnCheckout" value="true"/>
+        <property name="preferredTestQuery" value="select 1"/>
+    </bean>
+    <!--开启事务-->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="crawlDataSource"/>
+    </bean>
+
+    <bean id="crawlJdbcTemplate" class="org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate">
+        <constructor-arg type="javax.sql.DataSource" ref="crawlDataSource"/>
+    </bean>
+
+
+    <bean id="transportDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" destroy-method="close">
+        <property name="jdbcUrl" value="${transport.jdbc.url}"/>
+        <property name="driverClass" value="${transport.jdbc.driverClassName}"/>
+        <property name="user" value="${transport.jdbc.username}"/>
+        <property name="password" value="${transport.jdbc.password}"/>
+        <property name="initialPoolSize" value="${transport.jdbc.initialPoolSize}"/>
+        <property name="minPoolSize" value="${transport.jdbc.minPoolSize}"/>
+        <property name="maxPoolSize" value="${transport.jdbc.maxPoolSize}"/>
+        <property name="maxStatements" value="${transport.jdbc.maxStatements}"/>
+        <property name="autoCommitOnClose" value="${transport.jdbc.autoCommitOnClose}"/>
+        <property name="idleConnectionTestPeriod" value="${transport.jdbc.idleConnectionTestPeriod}"/>
+        <property name="maxIdleTime" value="${transport.jdbc.maxIdleTime}"/>
+        <property name="testConnectionOnCheckout" value="true"/>
+        <property name="preferredTestQuery" value="select 1"/>
+    </bean>
+
+    <bean id="transportTxManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="transportDataSource" />
+    </bean>
+
+
+    <bean id="s3Client" class="com.amazonaws.services.s3.AmazonS3Client">
+        <constructor-arg name="awsCredentials" ref="awsCredentials"/>
+    </bean>
+
+    <bean id="ec2Region" class="com.amazonaws.regions.Region" factory-method="getRegion">
+        <constructor-arg name="region" value="US_WEST_1"/>
+    </bean>
+
+    <bean id="amazonEC2Client" class="com.amazonaws.services.ec2.AmazonEC2Client">
+        <constructor-arg name="awsCredentials" ref="awsCredentials"/>
+        <property name="region" ref="ec2Region"/>
+    </bean>
+
+    <import resource="spring/*.xml"/>
+
+</beans>
