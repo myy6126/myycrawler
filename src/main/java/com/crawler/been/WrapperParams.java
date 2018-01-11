@@ -11,6 +11,15 @@ import java.util.Map;
 @Setter
 @ToString
 public class WrapperParams {
-
+    private String wrapperId;
+    private String wrapperClass;
+    private String source;
     private Map<String, String> param = Maps.newHashMap();
+
+    public static WrapperParams create(String wrapperId,String className) {
+        WrapperParams requiredKeys = new WrapperParams();
+        requiredKeys.setWrapperId(wrapperId);
+        requiredKeys.setWrapperClass(className);
+        return requiredKeys;
+    }
 }

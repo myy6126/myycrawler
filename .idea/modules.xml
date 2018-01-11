@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/myy-crawler.iml" filepath="$PROJECT_DIR$/myy-crawler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myycrawler.iml" filepath="$PROJECT_DIR$/myycrawler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myywrapper/pllcWrapper.iml" filepath="$PROJECT_DIR$/myywrapper/pllcWrapper.iml" />
     </modules>
   </component>
 </project>

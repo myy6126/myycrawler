@@ -7,11 +7,12 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="myy-crawler" />
+        <module name="myycrawler" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
       <module name="myy-crawler" target="1.5" />
-      <module name="myycrawler" target="1.5" />
+      <module name="myycrawler" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
